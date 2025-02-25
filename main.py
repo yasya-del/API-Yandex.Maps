@@ -1,53 +1,41 @@
 import os
 import sys
 
+import pygame
 import requests
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel
 
-SCREEN_SIZE = [600, 450]
-
-x = float(input())
+x = float(input('Введите координаты объекта: '))
 y = float(input())
+s = float(input('Введите масштаб карты: '))
+server_address = 'https://static-maps.yandex.ru/v1?'
+api_key = 'f3a0fe3a-b07e-4840-a1da-06f18b2ddf13'
+ll_spn = f'll={x},{y}&spn={s},{s}'
+# Готовим запрос.
 
+map_request = f"{server_address}{ll_spn}&apikey={api_key}"
+response = requests.get(map_request)
 
-class Example(QWidget):
-    def init(self):
-        super().init()
-        self.getImage()
-        self.initUI()
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(map_request)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
 
-    def getImage(self):
-        server_address = '[https://static-maps.yandex.ru/v1?](https://static-maps.yandex.ru/v1?)'
-        api_key = 'f3a0fe3a-b07e-4840-a1da-06f18b2ddf13'
-        ll_spn = f'll={x}%2C{y}&spn=0,69.00619'
-        map_request = f"{server_address}{ll_spn}&apikey={api_key}"
-        response = requests.get(map_request)
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
 
-        if not response:
-            print("Ошибка выполнения запроса:")
-            print(map_request)
-            print("Http статус:", response.status_code, "(", response.reason, ")")
-            sys.exit(1)
-        self.map_file = "map.png"
-        with open(self.map_file, "wb") as file:
-            file.write(response.content)
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while pygame.event.wait().type != pygame.QUIT:
+    pass
+pygame.quit()
 
-    def initUI(self):
-        self.setGeometry(100, 100, *SCREEN_SIZE)
-        self.setWindowTitle('Отображение карты')
-        self.pixmap = QPixmap(self.map_file)
-        self.image = QLabel(self)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
-        self.image.setPixmap(self.pixmap)
-
-    def closeEvent(self, event):
-        os.remove(self.map_file)
-
-
-if name == 'main':
-    app = QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    sys.exit(app.exec())
+# Удаляем за собой файл с изображением.
+os.remove(map_file)
