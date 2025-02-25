@@ -23,8 +23,8 @@ def get_image(x1, y1):
     return map_file
 
 
-LAT_STEP = 0.008  # Шаги при движении карты по широте и долготе
-LON_STEP = 0.002
+LAT_STEP = 0.025  # Шаги при движении карты по широте и долготе
+LON_STEP = 0.01926
 x, y = map(float, input('Введите координаты объекта: ').split(','))
 z = int(input('Введите масштаб карты: '))
 map_file = get_image(x, y)
