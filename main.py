@@ -5,10 +5,10 @@ import pygame
 import requests
 
 
-def get_image(s1, s2):
+def get_image(z):
     server_address = 'https://static-maps.yandex.ru/v1?'
-    api_key = 'f3a0fe3a-b07e-4840-a1da-06f18b2ddf13'
-    ll_spn = f'll={x},{y}&spn={s1},{s2}'
+    api_key = '1c61eb4c-5ad0-4d78-9b19-b45653666b96'
+    ll_spn = f'll={x},{y}&z={z}'
     map_request = f"{server_address}{ll_spn}&apikey={api_key}"
     response = requests.get(map_request)
     if not response:
@@ -22,8 +22,8 @@ def get_image(s1, s2):
     return map_file
 
 x, y = map(float, input('Введите координаты объекта: ').split(','))
-s1, s2 = map(float, input('Введите масштаб карты: ').split(','))
-map_file = get_image(s1, s2)
+z = int(input('Введите масштаб карты: '))
+map_file = get_image(z)
 pygame.init()
 screen = pygame.display.set_mode((600, 450))
 FPS = 60
@@ -38,20 +38,15 @@ while run:
         if pygame.event.wait().type == pygame.QUIT:
             run = False
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEUP:
-            if s1 <= 20.75:
-                s1 += 0.25
-            if s2 <= 20.75:
-                s2 += 0.25
-            print(s1, s2)
-            map_file = get_image(s1, s2)
+            if z <= 20:
+                z += 1
+            print(z)
+            map_file = get_image(z)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-            print(1)
-            if s1 >= 0.252:
-                s1 -= 0.25
-            if s2 >= 0.252:
-                s2 -= 0.25
-            print(s1, s2)
-            map_file = get_image(s1, s2)
+            if z >= 1:
+                z -= 1
+            print(z)
+            map_file = get_image(z)
     screen.blit(pygame.image.load(map_file), (0, 0))
     pygame.display.flip()
     clock.tick(FPS)
