@@ -1,14 +1,15 @@
 import os
 import sys
+import math
 
 import pygame
 import requests
 
 
-def get_image(z):
+def get_image(x1, y1):
     server_address = 'https://static-maps.yandex.ru/v1?'
     api_key = '1c61eb4c-5ad0-4d78-9b19-b45653666b96'
-    ll_spn = f'll={x},{y}&z={z}'
+    ll_spn = f'll={x1},{y1}&z={z}'
     map_request = f"{server_address}{ll_spn}&apikey={api_key}"
     response = requests.get(map_request)
     if not response:
@@ -21,9 +22,12 @@ def get_image(z):
         file.write(response.content)
     return map_file
 
+
+LAT_STEP = 0.008  # Шаги при движении карты по широте и долготе
+LON_STEP = 0.002
 x, y = map(float, input('Введите координаты объекта: ').split(','))
 z = int(input('Введите масштаб карты: '))
-map_file = get_image(z)
+map_file = get_image(x, y)
 pygame.init()
 screen = pygame.display.set_mode((600, 450))
 FPS = 60
@@ -40,13 +44,28 @@ while run:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEUP:
             if z <= 20:
                 z += 1
-            print(z)
-            map_file = get_image(z)
+            map_file = get_image(x, y)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
             if z >= 1:
                 z -= 1
-            print(z)
-            map_file = get_image(z)
+            map_file = get_image(x, y)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN:
+                get_image(x, y - LON_STEP * math.pow(2, 15 - z))
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
+            if event.key == pygame.K_UP:
+                get_image(x, y + LON_STEP * math.pow(2, 15 - z))
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
+            if event.key == pygame.K_LEFT:
+                get_image(x - LAT_STEP * math.pow(2, 15 - z), y)
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
+            if event.key == pygame.K_RIGHT:
+                get_image(x + LAT_STEP * math.pow(2, 15 - z), y)
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
     screen.blit(pygame.image.load(map_file), (0, 0))
     pygame.display.flip()
     clock.tick(FPS)
