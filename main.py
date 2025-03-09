@@ -50,5 +50,5 @@ while run:
     clock.tick(FPS)
 pygame.quit()
 
-# Удаляем за собой файл с изображением.
+# Удаляем за собой файл с изображением
 os.remove(map_file)
