@@ -38,6 +38,7 @@ screen.blit(pygame.image.load(map_file), (0, 0))
 # Переключаем экран и ждем закрытия окна.
 pygame.display.flip()
 run = True
+
 while run:
     for event in pygame.event.get():
         if pygame.event.wait().type == pygame.QUIT:
