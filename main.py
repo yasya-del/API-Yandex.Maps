@@ -20,7 +20,10 @@ def get_image(theme):
     with open(map_file, "wb") as file:
         file.write(response.content)
     return map_file
-#vgygvfK
+#vgygv
+
+
+
 
 x, y = map(float, input('Введите координаты объекта: ').split(','))
 z = int(input('Введите масштаб карты: '))
