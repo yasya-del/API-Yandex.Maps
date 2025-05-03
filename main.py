@@ -125,7 +125,7 @@ class Example(QMainWindow):
             coords = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
                 'GeocoderMetaData']['text']
             self.seach_lineedit.setText(coords)
-        except Exception:  # на случай если что-то произойдет с поиском
+        except Exception:
             return
 
     def btn_reset_click(self):
@@ -155,7 +155,6 @@ class Example(QMainWindow):
         response = requests.get(link, search_params)
         check_response(response)
 
-        # Запишем полученное изображение в файл.
         self.map_file = f"map.png"
         with open(self.map_file, "wb") as file:
             file.write(response.content)
@@ -204,7 +203,6 @@ class Example(QMainWindow):
         self.image.setPixmap(QPixmap('map.png'))
 
     def closeEvent(self, event):
-        """При закрытии формы подчищаем за собой"""
         os.remove('map.png')
 
 
