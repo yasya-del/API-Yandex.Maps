@@ -40,7 +40,7 @@ class Example(QMainWindow):
         self.scale = 1
         self.cur_type_map = 'map'
         self.setGeometry(100, 100, *self.SCREEN_SIZE)
-        self.setWindowTitle('Задание 7')
+        self.setWindowTitle('Задание 8')
         self.get_image(self.coords, self.scale)
 
         self.combobox = Combo(self)
@@ -53,10 +53,10 @@ class Example(QMainWindow):
         self.btn_combobox.resize(150, 30)
         self.btn_combobox.clicked.connect(self.btn_combobox_click)
 
-        self.search_lineedit = QLineEdit(self)
-        self.search_lineedit.setPlaceholderText('Введите место поиска здесь')
-        self.search_lineedit.move(300, 465)
-        self.search_lineedit.resize(190, 25)
+        self.seach_lineedit = QLineEdit(self)
+        self.seach_lineedit.setPlaceholderText('Введите место поиска здесь')
+        self.seach_lineedit.move(300, 465)
+        self.seach_lineedit.resize(190, 25)
 
         self.btn_lineedit = QPushButton('Начать поиск', self)
         self.btn_lineedit.move(300, 490)
@@ -68,24 +68,38 @@ class Example(QMainWindow):
         self.btn_reset.resize(90, 25)
         self.btn_reset.clicked.connect(self.btn_reset_click)
 
-        # ---------------------сделано Софьей Тимофеевой
-
+        self.btn_addresses = QPushButton('Вывод адреса', self)
+        self.btn_addresses.move(500, 465)
+        self.btn_addresses.resize(90, 25)
+        self.btn_addresses.clicked.connect(self.btn_addresses_clicked)
+        # ---------------------сделано Кузьмичёвым Максимом
         self.pixmap = QPixmap('map.png')
         self.image = QLabel(self)
         self.image.resize(600, 450)
         self.image.setPixmap(self.pixmap)
 
-    def btn_lineedit_click(self):
-        if not self.search_lineedit.text():
-            return
-
         seach_params = {
-            'geocode': self.search_lineedit.text(),
+            'geocode': 'Ярославль',
             'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
             'format': 'json'
         }
+
+        link = 'https://geocode-maps.yandex.ru/1.x/'
+        self.response = requests.get(link, seach_params)
+
+    def btn_lineedit_click(self):
+        if not self.seach_lineedit.text():
+            return
+
+        seach_params = {
+            'geocode': self.seach_lineedit.text(),
+            'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
+            'format': 'json'
+        }
+
         link = 'https://geocode-maps.yandex.ru/1.x/'
         response = requests.get(link, seach_params)
+        self.response = response
         check_response(response)
 
         data = response.json()
@@ -99,13 +113,21 @@ class Example(QMainWindow):
             self.scale = 8
         elif self.scale > 12:
             self.scale = 12
-
         self.pt = f'{coords},pm2lbm'
         self.get_image(coords, self.scale)
         self.coords = coords
         self.image.setPixmap(QPixmap(self.map_file))
 
-    # ---------------------сделано Зайцевой Василисей
+    # ---------------------сделано Софьей Тимофеевой
+    def btn_addresses_clicked(self):
+        data = self.response.json()
+        try:
+            coords = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty'][
+                'GeocoderMetaData']['text']
+            self.seach_lineedit.setText(coords)
+        except Exception:  # на случай если что-то произойдет с поиском
+            return
+
     def btn_reset_click(self):
         self.pt = ''
         self.get_image(self.coords, self.scale)
@@ -201,4 +223,4 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec())
-#---------------------сделано Кузьмичёвым Максимом
+# ---------------------сделано Зайцевой Василисей
