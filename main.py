@@ -14,7 +14,7 @@ def get_coords(scale, coords):
         scale = 1
     scale = int(scale)
 
-    if scale == 1 or scale == 0:  # более красивое отображение
+    if scale == 1 or scale == 0:
         coords = coords.split(',')
         coords[-1] = '0'
         coords = ','.join(coords)
@@ -36,10 +36,11 @@ class Example(QMainWindow):
     def initUI(self):
         self.SCREEN_SIZE = [600, 520]
         self.coords = "39.847061,57.576481"
+        self.pt = ''
         self.scale = 1
         self.cur_type_map = 'map'
         self.setGeometry(100, 100, *self.SCREEN_SIZE)
-        self.setWindowTitle('Задание 5')
+        self.setWindowTitle('Задание 6')
         self.get_image(self.coords, self.scale)
 
         self.combobox = Combo(self)
@@ -61,17 +62,15 @@ class Example(QMainWindow):
         self.btn_lineedit.move(300, 490)
         self.btn_lineedit.resize(190, 25)
         self.btn_lineedit.clicked.connect(self.btn_lineedit_click)
-
-        # Изображение
         self.pixmap = QPixmap('map.png')
         self.image = QLabel(self)
         self.image.resize(600, 450)
         self.image.setPixmap(self.pixmap)
-#_________Сделано_Кузьмичёвым_Максимом__
+
     def btn_lineedit_click(self):
         if not self.search_lineedit.text():
             return
-
+        # ---------------------сделано Кузьмичёвым Максимом
         seach_params = {
             'geocode': self.search_lineedit.text(),
             'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
@@ -84,7 +83,7 @@ class Example(QMainWindow):
         data = response.json()
         try:
             coords = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'].split()
-        except Exception:  # на случай если что-то произойдет с поиском
+        except Exception:
             return
         coords = ','.join(coords)
 
@@ -92,8 +91,8 @@ class Example(QMainWindow):
             self.scale = 8
         elif self.scale > 12:
             self.scale = 12
-
-        self.get_image(coords, self.scale, pt='pm2lbm')
+        self.pt = f'{coords},pm2lbm'
+        self.get_image(coords, self.scale)
         self.coords = coords
         self.image.setPixmap(QPixmap(self.map_file))
 
@@ -103,7 +102,7 @@ class Example(QMainWindow):
         self.get_image(self.coords, self.scale)
         self.image.setPixmap(QPixmap(self.map_file))
 
-    def get_image(self, coords, scale, pt=''):
+    def get_image(self, coords, scale):
         coords = get_coords(scale, coords)
 
         search_params = {
@@ -111,20 +110,17 @@ class Example(QMainWindow):
             'z': scale,
             'l': self.cur_type_map
         }
-        if pt != '':
-            search_params['pt'] = f'{coords},pm2dgl'
+        # ---------------------сделано Зайцевой Василисей
+        if self.pt != '':
+            search_params['pt'] = self.pt
 
         link = 'http://static-maps.yandex.ru/1.x/'
 
         response = requests.get(link, search_params)
         check_response(response)
-
-        # Запишем полученное изображение в файл.
         self.map_file = f"map.png"
         with open(self.map_file, "wb") as file:
             file.write(response.content)
-
-#________Сделано_Тимофеевой_Софьей__
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageUp and self.scale < 20:
@@ -189,4 +185,4 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec())
-#_________Сделано_Зайцевой_Василисей__K
+#---------------------сделано Софьей Тимофеевой
