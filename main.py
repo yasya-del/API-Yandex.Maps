@@ -40,7 +40,7 @@ class Example(QMainWindow):
         self.scale = 1
         self.cur_type_map = 'map'
         self.setGeometry(100, 100, *self.SCREEN_SIZE)
-        self.setWindowTitle('Задание 6')
+        self.setWindowTitle('Задание 7')
         self.get_image(self.coords, self.scale)
 
         self.combobox = Combo(self)
@@ -62,6 +62,14 @@ class Example(QMainWindow):
         self.btn_lineedit.move(300, 490)
         self.btn_lineedit.resize(190, 25)
         self.btn_lineedit.clicked.connect(self.btn_lineedit_click)
+
+        self.btn_reset = QPushButton('Сброс метки', self)
+        self.btn_reset.move(500, 490)
+        self.btn_reset.resize(90, 25)
+        self.btn_reset.clicked.connect(self.btn_reset_click)
+
+        # ---------------------сделано Софьей Тимофеевой
+
         self.pixmap = QPixmap('map.png')
         self.image = QLabel(self)
         self.image.resize(600, 450)
@@ -70,7 +78,7 @@ class Example(QMainWindow):
     def btn_lineedit_click(self):
         if not self.search_lineedit.text():
             return
-        # ---------------------сделано Кузьмичёвым Максимом
+
         seach_params = {
             'geocode': self.search_lineedit.text(),
             'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
@@ -91,9 +99,16 @@ class Example(QMainWindow):
             self.scale = 8
         elif self.scale > 12:
             self.scale = 12
+
         self.pt = f'{coords},pm2lbm'
         self.get_image(coords, self.scale)
         self.coords = coords
+        self.image.setPixmap(QPixmap(self.map_file))
+
+    # ---------------------сделано Зайцевой Василисей
+    def btn_reset_click(self):
+        self.pt = ''
+        self.get_image(self.coords, self.scale)
         self.image.setPixmap(QPixmap(self.map_file))
 
     def btn_combobox_click(self):
@@ -110,7 +125,6 @@ class Example(QMainWindow):
             'z': scale,
             'l': self.cur_type_map
         }
-        # ---------------------сделано Зайцевой Василисей
         if self.pt != '':
             search_params['pt'] = self.pt
 
@@ -118,6 +132,8 @@ class Example(QMainWindow):
 
         response = requests.get(link, search_params)
         check_response(response)
+
+        # Запишем полученное изображение в файл.
         self.map_file = f"map.png"
         with open(self.map_file, "wb") as file:
             file.write(response.content)
@@ -185,4 +201,4 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec())
-#---------------------сделано Софьей Тимофеевой
+#---------------------сделано Кузьмичёвым Максимом
